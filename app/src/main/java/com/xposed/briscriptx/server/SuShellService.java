@@ -20,6 +20,8 @@ import android.view.WindowManager;
 import androidx.annotation.Nullable;
 
 import com.xposed.briscriptx.databinding.LayoutLogBinding;
+import com.xposed.briscriptx.server.script.BaseScript;
+import com.xposed.briscriptx.server.script.LoginActivityScript;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -35,10 +37,13 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -53,6 +58,10 @@ public class SuShellService extends Service {
     private boolean isRunning = true;
     private String file;
 
+    private final Map<String, BaseScript> activityScripts = new HashMap<>() {{
+        put("id.co.bri.brimo.ui.activities.LoginActivity", new LoginActivityScript());
+    }};
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -64,8 +73,8 @@ public class SuShellService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        stopSuShell();
         logWindow.destroy();
+        stopSuShell();
     }
 
     // Binder 用于与 Activity 通信
@@ -136,7 +145,7 @@ public class SuShellService extends Service {
                     while (isRunning) {
                         outputStream.writeBytes("uiautomator dump " + file + "\n"); // 替换为你的命令
                         outputStream.flush();
-                        Thread.sleep(1000); // 5秒间隔
+                        Thread.sleep(5000); // 5秒间隔
                     }
                 } catch (IOException | InterruptedException e) {
                     Log.e(TAG, "Error executing command: " + e.getMessage());
@@ -148,19 +157,55 @@ public class SuShellService extends Service {
         }
     }
 
+    //重新获取一次ui数据
+    public List<UiXmlParser.Node> getNodes() {
+        executeSuCommand("uiautomator dump " + file + "\n");
+        UiXmlParser uiXmlParser = new UiXmlParser(file);
+        uiXmlParser.parseUiXml();
+        return uiXmlParser.getNodes();
+    }
+
+    //点击控件
+    public void click( Rect rect) {
+        if (rect==null)return;
+        int x = rect.centerX();
+        int y = rect.centerY();
+        String text = String.format("tap %s %s", x, y);
+        inputText(text);
+    }
+
+    //输入文字
+    public void input(String text) {
+        String s = String.format("text \"%s\"", text);
+        inputText(s);
+    }
+
+    public void inputText(String text) {
+        new Thread(() -> {
+            try {
+                outputStream.writeBytes(String.format("input %s\n", text));
+                outputStream.flush();
+            } catch (IOException e) {
+                Log.i(TAG, "点击失败");
+            }
+        }).start();
+    }
+
     private void handlerMsg(String line) {
         String ui = "UI hierchary dumped to: " + file;
         if (line.equals(ui)) {
             UiXmlParser uiXmlParser = new UiXmlParser(file);
-            uiXmlParser.parseUiXml(file);
+            uiXmlParser.parseUiXml();
             List<UiXmlParser.Node> nodes = uiXmlParser.getNodes();
-            for (UiXmlParser.Node node : nodes) {
-                Log.d("运行", node.toString());
-            }
             String activity = executeSuCommand("dumpsys window | grep mCurrentFocus");
             if (activity != null) {
                 activity = extractActivityName(activity);
-                if (activity != null) Log.d("运行", activity);
+                if (activity != null) {
+                    Log.d(TAG, "当前Activity：" + activity);
+                    if (activityScripts.containsKey(activity)) {
+                        activityScripts.get(activity).onCreate(this, nodes);
+                    }
+                }
             }
         }
     }
@@ -255,16 +300,16 @@ public class SuShellService extends Service {
 
     @Getter
     public static class UiXmlParser {
-        private final String file;
+        private final String filePath;
         private final List<Node> nodes = new ArrayList<>();
 
         public UiXmlParser(String file) {
-            this.file = file;
+            this.filePath = file;
         }
 
         private static final String TAG = "UiXmlParser";
 
-        public void parseUiXml(String filePath) {
+        public void parseUiXml() {
             File file = new File(filePath);
             if (!file.exists()) {
                 Log.e(TAG, "File not found: " + filePath);

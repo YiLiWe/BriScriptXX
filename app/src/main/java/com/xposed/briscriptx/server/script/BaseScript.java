@@ -5,5 +5,6 @@ import com.xposed.briscriptx.server.SuShellService;
 import java.util.List;
 
 public abstract class BaseScript {
-    public abstract void onCreate(List<SuShellService.UiXmlParser.Node> nodes);
+    public abstract void onCreate(SuShellService suShellService,List<SuShellService.UiXmlParser.Node> nodes);
+
 }
