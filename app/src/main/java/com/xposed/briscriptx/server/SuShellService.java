@@ -422,7 +422,7 @@ public class SuShellService extends Service {
         private void init() {
             WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                     dpToPx(service, 300),
-                    dpToPx(service, 300),
+                    dpToPx(service, 100),
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |  // 关键：悬浮窗不获取焦点
                             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, // 关键：悬浮窗不可触摸（穿透点击）
