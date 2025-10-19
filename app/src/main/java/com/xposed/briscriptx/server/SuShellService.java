@@ -182,7 +182,7 @@ public class SuShellService extends Service {
         inputText(s);
     }
 
-    public void inputText(String text) {
+    private void inputText(String text) {
         new Thread(() -> {
             try {
                 outputStream.writeBytes(String.format("input %s\n", text));
