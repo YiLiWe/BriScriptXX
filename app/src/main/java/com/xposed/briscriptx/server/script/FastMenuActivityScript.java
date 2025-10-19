@@ -25,7 +25,7 @@ public class FastMenuActivityScript extends BaseScript {
         if (nodeMap.containsKey("id.co.bri.brimo:id/2131363165")) {
             Rect rect = nodeMap.get("id.co.bri.brimo:id/2131363165").getBounds();
             suShellService.click(rect);
-            suShellService.inputText("Briku123");
+            suShellService.inputText("Zh0909!@#");
             if (nodeMap.containsKey("id.co.bri.brimo:id/2131362358")) {
                 Rect rect1 = nodeMap.get("id.co.bri.brimo:id/2131362358").getBounds();
                 suShellService.click(rect1);
