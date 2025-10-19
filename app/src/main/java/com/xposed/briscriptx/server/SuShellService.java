@@ -166,8 +166,8 @@ public class SuShellService extends Service {
     }
 
     //点击控件
-    public void click( Rect rect) {
-        if (rect==null)return;
+    public void click(Rect rect) {
+        if (rect == null) return;
         int x = rect.centerX();
         int y = rect.centerY();
         String text = String.format("tap %s %s", x, y);
@@ -197,7 +197,7 @@ public class SuShellService extends Service {
             UiXmlParser uiXmlParser = new UiXmlParser(file);
             uiXmlParser.parseUiXml();
             List<UiXmlParser.Node> nodes = uiXmlParser.getNodes();
-            String activity = executeSuCommand("dumpsys window | grep mCurrentFocus");
+            String activity = executeSuCommand("dumpsys activity activities | grep  mFocusedWindow");
             if (activity != null) {
                 activity = extractActivityName(activity);
                 if (activity != null) {
@@ -211,12 +211,17 @@ public class SuShellService extends Service {
     }
 
     public static String extractActivityName(String input) {
-        // 分割字符串，提取最后一个 '/' 后的内容
-        String[] parts = input.split("/");
-        if (parts.length > 1) {
-            // 去除可能的右括号或其他字符，注意转义 }
-            String activityPart = parts[1].split("\\}")[0];
-            return activityPart.trim();
+        // 提取第一条日志
+        String firstLine = input.split("\n")[0].trim();
+
+        // 分割字符串获取Activity全路径
+        String[] parts = firstLine.split(" ");
+        String fullPath = parts[2]; // 得到 "bin.mt.plus/bin.mt.plus.MainLightIcon"
+
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("/([^/]+)\\}");
+        java.util.regex.Matcher matcher = pattern.matcher(fullPath);
+        if (matcher.find()) {
+            return matcher.group(1);
         }
         return null;
     }

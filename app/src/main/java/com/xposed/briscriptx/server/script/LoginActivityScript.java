@@ -17,10 +17,12 @@ public class LoginActivityScript extends BaseScript {
         for (SuShellService.UiXmlParser.Node node : nodeMap.values()) {
             Log.d(TAG, node.toString());
         }
+
         if (nodeMap.containsKey("id.co.bri.brimo:id/2131362986")) {
             SuShellService.UiXmlParser.Node node = nodeMap.get("id.co.bri.brimo:id/2131362986");
             suShellService.click(node.getBounds());
             suShellService.inputText("usuxjncnjsxjnas");
+
         }
     }
 
