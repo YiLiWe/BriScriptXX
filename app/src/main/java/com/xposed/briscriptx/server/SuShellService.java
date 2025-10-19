@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 
 import com.xposed.briscriptx.databinding.LayoutLogBinding;
 import com.xposed.briscriptx.server.script.BaseScript;
+import com.xposed.briscriptx.server.script.FastMenuActivityScript;
 import com.xposed.briscriptx.server.script.LoginActivityScript;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -60,6 +61,7 @@ public class SuShellService extends Service {
 
     private final Map<String, BaseScript> activityScripts = new HashMap<>() {{
         put("id.co.bri.brimo.ui.activities.LoginActivity", new LoginActivityScript());
+        put("id.co.bri.brimo.ui.activities.FastMenuActivity", new FastMenuActivityScript());
     }};
 
     @Override
@@ -191,6 +193,7 @@ public class SuShellService extends Service {
         }).start();
     }
 
+    //id.co.bri.brimo.ui.activities.FastMenuActivity
     private void handlerMsg(String line) {
         String ui = "UI hierchary dumped to: " + file;
         if (line.equals(ui)) {
