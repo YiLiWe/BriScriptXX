@@ -15,12 +15,21 @@ public class FastMenuActivityScript extends BaseScript {
     @Override
     public void onCreate(SuShellService suShellService, List<SuShellService.UiXmlParser.Node> nodes) {
         Map<String, SuShellService.UiXmlParser.Node> nodeMap = NodeScriptUtils.toResourceIdMap(nodes);
-        for (SuShellService.UiXmlParser.Node node : nodeMap.values()) {
-            Log.d(TAG, node.toString());
-        }
+        //点击登录
         if (nodeMap.containsKey("id.co.bri.brimo:id/2131362262")) {
             Rect rect = nodeMap.get("id.co.bri.brimo:id/2131362262").getBounds();
             suShellService.click(rect);
+        }
+
+        //输入密码
+        if (nodeMap.containsKey("id.co.bri.brimo:id/2131363165")) {
+            Rect rect = nodeMap.get("id.co.bri.brimo:id/2131363165").getBounds();
+            suShellService.click(rect);
+            suShellService.inputText("Briku123");
+            if (nodeMap.containsKey("id.co.bri.brimo:id/2131362358")) {
+                Rect rect1 = nodeMap.get("id.co.bri.brimo:id/2131362358").getBounds();
+                suShellService.click(rect1);
+            }
         }
     }
 }
